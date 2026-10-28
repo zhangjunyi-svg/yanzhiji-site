@@ -1,0 +1,25 @@
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# 临时检查文件（截图验证时生成的副本）
+_check*.html
+
+# 编辑器 / IDE
+.vscode/
+.idea/
+*.swp
+
+# Vercel / 部署产物
+.vercel/
+node_modules/
+dist/
+
+# 日志
+*.log
+npm-debug.log*
+
+# 平台标记文件
+.wbapp_*
+*.genie

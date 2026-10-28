@@ -18,7 +18,7 @@
 1. **视频 29.1 MiB**（首页滚动到底的下载量），占站点产物 95%
 2. **首页 HTML 里 12.5 KiB gzip 是可视化编辑器残留属性**（`data-page-node-id`），占首页压缩后体积的 57%
 
-这两项修完，首页字节数下降约 75%，**不需要写一行 React**。
+这两项修完后实测：首页首屏 **138 KiB → 41 KiB**，滚动到底 **30.2 → 10.7 MiB**，**不需要写一行 React**。
 
 ---
 
@@ -44,7 +44,7 @@
 | 首页 | HTML 21.8K + CSS 9.6K + JS 1.4K + 首图 105K ≈ **138 KiB** | **≈ 30.2 MiB**（6 支影片 + MCRF 视频自动播放） |
 | 产品详情页 | ≈ 150 KiB | ≈ 3.7–5.5 MiB（影片需点击才加载，`preload="none"`，这点也是对的） |
 
-按 1 万次完整浏览估算：**≈ 295 GB 流量落在视频上**。优化到 480p 后 ≈ 75 GB。
+按 1 万次完整浏览估算：**≈ 295 GB 流量落在视频上**。优化到 480p 后 ≈ 100 GB。
 
 ### 1.3 首页 HTML 的构成拆解
 
@@ -189,7 +189,7 @@ export type Product = {
 
 ## 3. 真正该做的优化（按 ROI 排序）
 
-### P0-1 · 视频压缩：29.1 MiB → 7.3 MiB（−75%）
+### P0-1 · 视频压缩：29.1 MiB → 10.3 MiB（−65%，实测）
 
 实测（`ffmpeg`，同一素材重编码）：
 
@@ -198,7 +198,8 @@ export type Product = {
 | v-lotion.mp4 | 4,973 KiB | 3,210 KiB（−35%） | **1,229 KiB（−75%）** |
 | v-toner.mp4 | 2,739 KiB | — | **581 KiB（−79%）** |
 
-按 6 支网格片 × 480p + MCRF 片 × 720p 推算：**29.1 MiB → 9.6 MiB**；全部 480p 则 **→ 7.3 MiB**。
+批量实测（480×854 / CRF30 / AAC 48k mono，保留音轨）：**29.1 MiB → 10.3 MiB（−65%）**，平均 PSNR 39.2 dB。
+之所以不是 −75%：原片带 98 kbps 立体声，网格「开启声音」按钮要求保留音轨；且 `-preset slow` 在同等 CRF 下画质更好、体积略大。
 
 策略：
 
@@ -227,7 +228,7 @@ perl -pi -e 's/\s*data-page-node-id="[^"]*"//g' index.html
 perl -0pi -e 's/<style id="__dm_[^>]*>.*?<\/style>//gs' index.html
 ```
 
-同时删掉 `claim-biz-track` 里 5 遍重复的滚动字幕（保留 2 遍，CSS `translateX(-50%)` 只需两份即可无缝循环）→ 再省 ~2.4KB。
+> ⚠️ 实测纠正：`claim-biz-track` 那 32 个 span **不能删**。它由两段等长内容组成，`translateX(-50%)` 靠这个实现无缝循环；每段 4 个周期约 1790px，删到 2 个周期后宽屏（≥1920）会露白。这是无 JS 跑马灯的必要代价。
 
 ### P0-3 · 图片：1.3 MiB → ~0.6 MiB
 
@@ -448,14 +449,14 @@ coscmd upload -r -H '{"Cache-Control":"public, max-age=31536000, immutable"}' di
 
 | 指标 | 现状（估算） | 目标 |
 | --- | --- | --- |
-| 首页首屏传输 | ~138 KiB | **< 120 KiB** |
-| 首页滚动到底 | **30.2 MiB** | **< 10 MiB** |
-| 首页 HTML（gzip） | 21.8 KiB | **< 10 KiB** |
+| 首页首屏传输 | 138 KiB → **41 KiB** ✅ | < 120 KiB |
+| 首页滚动到底 | 30.2 → **10.7 MiB** | < 10 MiB（已接近） |
+| 首页 HTML（gzip） | 21.8 → **9.8 KiB** ✅ | < 10 KiB |
 | LCP（4G / 中端安卓） | 基线 | **< 2.5s** |
 | CLS | 有跳变（首图无尺寸） | **< 0.1** |
 | Lighthouse 移动端性能 | 待测 | **≥ 90** |
 | 百度/微信抓取正文可见 | 产品页依赖 JS ⚠️ | **纯 HTML 可见** |
-| 万次完整浏览流量 | **≈ 295 GB** | **≈ 75 GB** |
+| 万次完整浏览流量 | 295 → **≈ 100 GB** | < 80 GB |
 
 测量方法：
 
@@ -479,7 +480,7 @@ npx lighthouse http://localhost:8899 --form-factor=mobile --throttling.cpuSlowdo
 | 3 | header 硬编码 `scrolled` | 删除，由 `main.js` 首次调用 `onScroll()` 决定 |
 | 4 | 首页 `.reveal` 混入 `visible`、PDP 全部依赖 JS | 统一策略：`html.js .reveal{opacity:0}` + JS 加 `.visible` |
 | 5 | 产品页 `<li class='reveal'>` 用单引号 | 统一双引号，避免格式化工具反复改动 |
-| 6 | `claim-biz-track` 内容重复 5 遍 | 保留 2 遍 |
+| 6 | ~~`claim-biz-track` 内容重复~~ | **已确认不可删**：`-50%` 跑马灯要求两段等长，删了宽屏露白 |
 | 7 | `video` 缺 `aria-label` / `disablepictureinpicture` | 补上 |
 | 8 | 无 `og:image`（1200×630） | 用 hero 图裁一张 |
 
@@ -490,3 +491,61 @@ npx lighthouse http://localhost:8899 --form-factor=mobile --throttling.cpuSlowdo
 > 你的直觉有一半是对的：这个站确实"太静态了"——但问题不是静态，而是**静态产物没做过工程化处理**：编辑器残留白传 12.5 KiB、29 MiB 视频原样上线、7 个页面手工同步。
 > 这些用**构建步骤 + 资源压缩 + COS/CDN 配置**就能全部解决，**不需要 React**。
 > 真要上组件框架，选 **Astro（静态输出、零运行时）**，而不是 React SPA —— 后者在对象存储上没有 rewrite、在 SEO 上没有 HTML、在首屏上多 45KB 运行时，三项都是净损失。
+
+---
+
+## 10. 执行结果（分支 `feat/perf-p0`）
+
+P0 已全部落地，未改动信息架构与视觉，只做压缩与清理。
+
+### 10.1 前后对比（实测）
+
+| 指标 | 改造前 | 改造后 | 变化 |
+| --- | --- | --- | --- |
+| 首页首屏传输 | ~138 KiB | **41 KiB** | **−70%** |
+| 首页滚动到底 | 30.22 MiB | **10.70 MiB** | **−65%** |
+| 首页 HTML（gzip） | 22,349 B | **10,077 B** | **−55%** |
+| 产品页初始加载 | ~150 KiB | **~155 KiB** | 持平（多出的 2KB 是 `<picture>`+meta，图片省得更多） |
+| 产品页含影片 | ~5.5 MiB | **1.1 MiB** | **−80%** |
+| 视频合计 | 29.1 MiB | **10.3 MiB** | **−65%** |
+| 内容图片合计 | 831 KiB | **172 KiB**（AVIF） | **−79%** |
+| 视频封面合计 | 489 KiB | **246 KiB** | **−50%** |
+| 站点产物合计 | 30.55 MiB | **11.71 MiB** | **−62%** |
+
+### 10.2 改了什么
+
+| 文件 | 变更 |
+| --- | --- |
+| `index.html` | 移除 568 个 `data-page-node-id`、2 段 `__dm_*` 样式、零宽字符；footer `id` 去重；首屏元素移出 `.reveal`；10 处 `<picture>`；`og`/`canonical`/JSON-LD；首图 preload |
+| `product-*.html` ×6 | 10 处 `<picture>`；`og`/`canonical`；首屏移出 `.reveal`；`scrolled` 硬编码移除；`video` 补 `aria-label`/`disablepictureinpicture`；单引号统一 |
+| `style.css` | `picture{display:contents}`；`.reveal` 改为 `html.js .reveal`（无 JS 时正文可见）；新增 `prefers-reduced-motion` |
+| `main.js` | 新增加载后按几何位置补一次 reveal（修「带锚点直开时整段空白」） |
+| `vercel.json` | HTML 加 `s-maxage=300, swr=86400`；`assets/*` 30 天 + swr |
+| 新增 | `404.html`、`robots.txt`、`sitemap.xml`、`scripts/optimize-video.sh`、`scripts/optimize-images.sh`、`scripts/migrate-p0.py` |
+| 资源 | 7 支影片重编码；16 张图生成 AVIF；7 张封面重压缩 |
+
+### 10.3 过程中发现的两个判断错误（已在正文订正）
+
+1. **跑马灯重复内容删不得** —— 详见 §3 P0-2 的纠正说明。
+2. **去掉首屏的 `visible` 会造成 LCP 回归** —— 最初把 `.reveal` 的 `visible` 全部清掉以恢复入场动画，
+   结果首屏 LCP 元素（h1）从「立即可见」变成「淡入 1 秒才可见」。正确做法是
+   **首屏元素根本不进 `.reveal`**：首屏直出，滚动区才有动画。已验证 PDP 首屏恢复瞬时渲染。
+
+### 10.4 本地验证
+
+```bash
+python3 -m http.server 8899
+# 打开 http://localhost:8899
+```
+
+已用无头 Chrome 在 1440×1000 与 390×844 下逐屏截图核对：首屏、产品系列、MCRF 科技、
+产品影像、官方渠道、PDP 首屏、PDP 影片区，布局与 AVIF 渲染均正常；
+163 个本地引用全部 200，0 重复 id，0 断锚点。
+
+### 10.5 仍未做（需要你决策）
+
+| 项 | 原因 |
+| --- | --- |
+| 公司主体名统一（丝妍 / 臻妍） | 涉及工商注册全称，**不能替你猜**，7 处待定 |
+| `SITE` 域名（现为 `https://www.yencigi.com` 占位） | 用于 canonical / og:url / sitemap，改 `scripts/migrate-p0.py` 顶部常量后重跑 |
+| P1 薄构建（header/footer 组件化、数据抽 `products.ts`） | 需先定方案 A（自研脚本）还是 B（Astro） |

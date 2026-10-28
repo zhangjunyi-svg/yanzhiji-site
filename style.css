@@ -26,6 +26,8 @@ body {
   overflow-x: hidden;
 }
 img { display: block; max-width: 100%; }
+/* <picture> 不产生盒子，AVIF 降级不影响既有 img 选择器 */
+picture { display: contents; }
 a { color: inherit; text-decoration: none; }
 ul, ol { list-style: none; }
 b { font-weight: 600; }
@@ -418,8 +420,8 @@ b { font-weight: 600; }
 }
 
 /* ============ 入场动画 ============ */
-.reveal { opacity: 0; transform: translateY(34px); transition: opacity 1s ease, transform 1s cubic-bezier(.2,.65,.25,1); }
-.reveal.visible { opacity: 1; transform: none; }
+html.js .reveal { opacity: 0; transform: translateY(34px); transition: opacity 1s ease, transform 1s cubic-bezier(.2,.65,.25,1); }
+html.js .reveal.visible { opacity: 1; transform: none; }
 .d1 { transition-delay: .12s; } .d2 { transition-delay: .24s; }
 .d3 { transition-delay: .36s; } .d4 { transition-delay: .48s; }
 
@@ -1156,4 +1158,11 @@ a.product-card:hover .product-more::after { transform: translateX(5px); }
 @media (max-width: 720px) {
   .hero-actions { gap: 12px; }
   .hero-actions .btn { white-space: nowrap; padding: 12px 20px; font-size: 12px; letter-spacing: 0.08em; }
+}
+
+/* ============ 无障碍：尊重系统减弱动态 ============ */
+@media (prefers-reduced-motion: reduce) {
+  html.js .reveal { opacity: 1; transform: none; transition: none; }
+  .marquee-track, .claim-biz-track, .scroll-cue span, .hero-content { animation: none !important; }
+  html { scroll-behavior: auto; }
 }

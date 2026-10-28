@@ -30,6 +30,21 @@ const io = new IntersectionObserver(
 );
 document.querySelectorAll(".reveal").forEach((el) => io.observe(el));
 
+// 兜底：直接带锚点打开（如 index.html#products）或浏览器恢复滚动位置时，
+// IntersectionObserver 的首次回调可能早于这次跳转，导致目标区域停在 opacity:0。
+// 加载完成后再按几何位置补一次，保证深链与刷新后内容可见。
+const revealInView = () => {
+  document.querySelectorAll(".reveal:not(.visible)").forEach((el) => {
+    const r = el.getBoundingClientRect();
+    if (r.top < window.innerHeight * 0.94 && r.bottom > 0) {
+      el.classList.add("visible");
+      io.unobserve(el);
+    }
+  });
+};
+window.addEventListener("load", revealInView);
+window.addEventListener("hashchange", () => setTimeout(revealInView, 80));
+
 // 数字滚动
 const fmt = (n) => n.toLocaleString("en-US");
 const counterIO = new IntersectionObserver(

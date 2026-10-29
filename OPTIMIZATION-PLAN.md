@@ -546,6 +546,6 @@ python3 -m http.server 8899
 
 | 项 | 原因 |
 | --- | --- |
-| 公司主体名统一（丝妍 / 臻妍） | 涉及工商注册全称，**不能替你猜**，7 处待定 |
+| ~~公司主体名统一~~ | ✅ 已统一为「杭州丝妍科技有限公司」（7 处） |
 | `SITE` 域名（现为 `https://www.yencigi.com` 占位） | 用于 canonical / og:url / sitemap，改 `scripts/migrate-p0.py` 顶部常量后重跑 |
 | P1 薄构建（header/footer 组件化、数据抽 `products.ts`） | 需先定方案 A（自研脚本）还是 B（Astro） |

@@ -47,7 +47,7 @@
     <div class="pd-hero-copy">
       <a class="pd-crumb" href="index.html#products">← 返回产品系列</a>
       <p class="pd-eyebrow">焕能修护系列 &nbsp;·&nbsp; 修护水</p>
-      <h1 class="">焕能悦活修护水</h1>
+      <h1>焕能悦活修护水</h1>
       <p class="pd-en">REVITALIZING REPAIR TONER</p>
       <p class="pd-lede">洁面后的第一步，决定后续护肤的吸收效率。以 MCRF 丝素蛋白协同海藻糖、库拉索芦荟与马齿苋，调节水油、褪红焕亮，为屏障筑起第一道「防护水盾」。</p>
       <div class="pd-facts">
@@ -287,20 +287,5 @@
 </footer>
 
 <script src="main.js"></script>
-<script>
-// 产品影片：点击播放（含声音），离开视口暂停
-(function () {
-  var v = document.getElementById('pdVideo'), btn = document.getElementById('pdFilmPlay');
-  if (!v || !btn) return;
-  btn.addEventListener('click', function () {
-    v.muted = false; v.play(); btn.classList.add('playing'); btn.querySelector('span').textContent = '正在播放';
-  });
-  if ('IntersectionObserver' in window) {
-    new IntersectionObserver(function (es) {
-      es.forEach(function (e) { if (!e.isIntersecting) v.pause(); });
-    }, { threshold: 0.15 }).observe(v);
-  }
-})();
-</script>
 </body>
 </html>

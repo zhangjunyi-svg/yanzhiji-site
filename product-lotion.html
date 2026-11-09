@@ -47,7 +47,7 @@
     <div class="pd-hero-copy">
       <a class="pd-crumb" href="index.html#products">← 返回产品系列</a>
       <p class="pd-eyebrow">焕能修护系列 &nbsp;·&nbsp; 修护乳</p>
-      <h1 class="">焕能悦颜修护乳</h1>
+      <h1>焕能悦颜修护乳</h1>
       <p class="pd-en">REVITALIZING REPAIR LOTION</p>
       <p class="pd-lede">冰淇淋质地，一抹化水。1 小时极速修护、28 天卓效改善皮肤屏障——为敏弱肌肤筑起日常可依赖的防御层。</p>
       <div class="pd-facts">
@@ -291,20 +291,5 @@
 </footer>
 
 <script src="main.js"></script>
-<script>
-// 产品影片：点击播放（含声音），离开视口暂停
-(function () {
-  var v = document.getElementById('pdVideo'), btn = document.getElementById('pdFilmPlay');
-  if (!v || !btn) return;
-  btn.addEventListener('click', function () {
-    v.muted = false; v.play(); btn.classList.add('playing'); btn.querySelector('span').textContent = '正在播放';
-  });
-  if ('IntersectionObserver' in window) {
-    new IntersectionObserver(function (es) {
-      es.forEach(function (e) { if (!e.isIntersecting) v.pause(); });
-    }, { threshold: 0.15 }).observe(v);
-  }
-})();
-</script>
 </body>
 </html>

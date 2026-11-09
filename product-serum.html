@@ -47,7 +47,7 @@
     <div class="pd-hero-copy">
       <a class="pd-crumb" href="index.html#products">← 返回产品系列</a>
       <p class="pd-eyebrow">焕能修护系列 &nbsp;·&nbsp; 精华液</p>
-      <h1 class="">焕能舒润调理精华液</h1>
+      <h1>焕能舒润调理精华液</h1>
       <p class="pd-en">PRO REPAIR SERUM 2.0</p>
       <p class="pd-lede">水感质地，瞬渗透快吸收，不粘腻。第二代 Pro 精华——刷酸、早 C 晚 A 的「万能打底」，敏感肌的极速修护与进阶抗老。</p>
       <div class="pd-facts">
@@ -187,7 +187,7 @@
         <li class="reveal"><b>乳酸杆菌发酵产物</b><span>平衡微生态，维稳抗初老</span></li>
   </ul>
   <h3 class="pd-sub-title">复配成分</h3>
-  <div class="pd-extra reveal"><i>甘草酸二甲</i><i>海茴香愈伤组织培养物滤液</i><i>燕麦 β-葡聚糖</i><i>马齿苋提取物</i><i>七树叶提取物</i><i>3 重透明质酸钠</i><i>3 重神经酰胺</i></div>
+  <div class="pd-extra reveal"><i>甘草酸二钾</i><i>海茴香愈伤组织培养物滤液</i><i>燕麦 β-葡聚糖</i><i>马齿苋提取物</i><i>七树叶提取物</i><i>3 重透明质酸钠</i><i>3 重神经酰胺</i></div>
 </section>
 
 <!-- ======= 使用方法 ======= -->
@@ -333,20 +333,5 @@
 </footer>
 
 <script src="main.js"></script>
-<script>
-// 产品影片：点击播放（含声音），离开视口暂停
-(function () {
-  var v = document.getElementById('pdVideo'), btn = document.getElementById('pdFilmPlay');
-  if (!v || !btn) return;
-  btn.addEventListener('click', function () {
-    v.muted = false; v.play(); btn.classList.add('playing'); btn.querySelector('span').textContent = '正在播放';
-  });
-  if ('IntersectionObserver' in window) {
-    new IntersectionObserver(function (es) {
-      es.forEach(function (e) { if (!e.isIntersecting) v.pause(); });
-    }, { threshold: 0.15 }).observe(v);
-  }
-})();
-</script>
 </body>
 </html>

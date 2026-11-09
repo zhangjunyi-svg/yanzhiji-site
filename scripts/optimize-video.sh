@@ -25,6 +25,11 @@ total_after=0
 
 for f in assets/*.mp4; do
   [[ "$f" == *".bak.mp4" ]] && continue
+  w=$(ffprobe -v error -select_streams v:0 -show_entries stream=width -of csv=p=0 "$f")
+  if [[ -n "$w" && "$w" -le "$WIDTH" ]]; then
+    printf '%-18s 已是 %spx 宽，跳过\n' "$(basename "$f")" "$w"
+    continue
+  fi
   before=$(stat -f%z "$f" 2>/dev/null || stat -c%s "$f")
   out="$tmp/$(basename "$f")"
 

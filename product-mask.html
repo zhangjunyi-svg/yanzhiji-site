@@ -47,7 +47,7 @@
     <div class="pd-hero-copy">
       <a class="pd-crumb" href="index.html#products">← 返回产品系列</a>
       <p class="pd-eyebrow">焕能修护系列 &nbsp;·&nbsp; 面膜</p>
-      <h1 class="">焕能沁润凝萃面膜</h1>
+      <h1>焕能沁润凝萃面膜</h1>
       <p class="pd-en">HYDRATING ESSENCE MASK</p>
       <p class="pd-lede">「水裹面膜」——凝胶感棉力植物膜布，不流、不粘、不反渗。30ml 精华牢牢裹进肌肤，扫除暗沉干涸，焕发水亮光感。</p>
       <div class="pd-facts">
@@ -316,20 +316,5 @@
 </footer>
 
 <script src="main.js"></script>
-<script>
-// 产品影片：点击播放（含声音），离开视口暂停
-(function () {
-  var v = document.getElementById('pdVideo'), btn = document.getElementById('pdFilmPlay');
-  if (!v || !btn) return;
-  btn.addEventListener('click', function () {
-    v.muted = false; v.play(); btn.classList.add('playing'); btn.querySelector('span').textContent = '正在播放';
-  });
-  if ('IntersectionObserver' in window) {
-    new IntersectionObserver(function (es) {
-      es.forEach(function (e) { if (!e.isIntersecting) v.pause(); });
-    }, { threshold: 0.15 }).observe(v);
-  }
-})();
-</script>
 </body>
 </html>

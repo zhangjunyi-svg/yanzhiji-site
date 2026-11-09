@@ -29,6 +29,11 @@ echo
 echo "== 视频封面（480px JPG） =="
 for f in assets/*.mp4.jpg; do
   [[ -n "$CHECK" ]] && continue
+  w=$(ffprobe -v error -select_streams v:0 -show_entries stream=width -of csv=p=0 "$f")
+  if [[ -n "$w" && "$w" -le 480 ]]; then
+    printf '%-24s 已是 %spx 宽，跳过\n' "$(basename "$f")" "$w"
+    continue
+  fi
   out="${f%.jpg}.tmp.jpg"
   ffmpeg -v error -y -i "$f" -vf "scale=480:-2:flags=lanczos" -q:v 5 "$out"
   b=$(size "$f"); a=$(size "$out")

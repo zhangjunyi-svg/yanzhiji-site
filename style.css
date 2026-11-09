@@ -1163,6 +1163,6 @@ a.product-card:hover .product-more::after { transform: translateX(5px); }
 /* ============ 无障碍：尊重系统减弱动态 ============ */
 @media (prefers-reduced-motion: reduce) {
   html.js .reveal { opacity: 1; transform: none; transition: none; }
-  .marquee-track, .claim-biz-track, .scroll-cue span, .hero-content { animation: none !important; }
+  .marquee-track, .claim-biz-track, .scroll-cue span, .hero-visual img { animation: none !important; }
   html { scroll-behavior: auto; }
 }

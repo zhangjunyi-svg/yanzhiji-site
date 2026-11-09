@@ -47,7 +47,7 @@
     <div class="pd-hero-copy">
       <a class="pd-crumb" href="index.html#products">← 返回产品系列</a>
       <p class="pd-eyebrow">焕能修护系列 &nbsp;·&nbsp; 洁面慕斯</p>
-      <h1 class="">焕颜净澈洁面慕斯</h1>
+      <h1>焕颜净澈洁面慕斯</h1>
       <p class="pd-en">GENTLE CLEANSING MOUSSE</p>
       <p class="pd-lede">云感慕斯 Q 弹质地，上脸轻柔。真氨基酸洁面，洗卸护三合一——两捧清水即净，不拔干、不假滑。</p>
       <div class="pd-facts">
@@ -287,20 +287,5 @@
 </footer>
 
 <script src="main.js"></script>
-<script>
-// 产品影片：点击播放（含声音），离开视口暂停
-(function () {
-  var v = document.getElementById('pdVideo'), btn = document.getElementById('pdFilmPlay');
-  if (!v || !btn) return;
-  btn.addEventListener('click', function () {
-    v.muted = false; v.play(); btn.classList.add('playing'); btn.querySelector('span').textContent = '正在播放';
-  });
-  if ('IntersectionObserver' in window) {
-    new IntersectionObserver(function (es) {
-      es.forEach(function (e) { if (!e.isIntersecting) v.pause(); });
-    }, { threshold: 0.15 }).observe(v);
-  }
-})();
-</script>
 </body>
 </html>

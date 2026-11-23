@@ -30,9 +30,8 @@ const io = new IntersectionObserver(
 );
 document.querySelectorAll(".reveal").forEach((el) => io.observe(el));
 
-// 兜底：直接带锚点打开（如 index.html#products）或浏览器恢复滚动位置时，
-// IntersectionObserver 的首次回调可能早于这次跳转，导致目标区域停在 opacity:0。
-// 加载完成后再按几何位置补一次，保证深链与刷新后内容可见。
+// 兜底：直接带锚点打开（如 /#products）或浏览器恢复滚动位置时，
+// IntersectionObserver 的首次回调可能早于这次跳转，加载完成后按几何位置补一次。
 const revealInView = () => {
   document.querySelectorAll(".reveal:not(.visible)").forEach((el) => {
     const r = el.getBoundingClientRect();

@@ -17,7 +17,13 @@
 | `product-mask.html` | 焕能沁润凝萃面膜 |
 | `style.css` | 全站样式（含响应式 1080 / 720 断点） |
 | `main.js` | 滚动揭示动画、数字计数、视频滚动播放、口令复制 |
+| `404.html` | 404 页（路径全绝对，可在任意层级命中） |
+| `robots.txt` / `sitemap.xml` | 收录配置 |
+| `scripts/` | 媒体优化脚本（见「资源优化」） |
 | `assets/` | 产品图、质地图、科学图、品牌 Logo、7 支短视频及封面 |
+
+> 图片同时存在 `.jpg`（兜底）与 `.avif`（现代格式），通过 `<picture>` 自动协商。
+> 新增图片时请跑一次 `./scripts/optimize-images.sh` 生成 AVIF，否则页面只会用到 JPG。
 
 ## 本地预览
 
@@ -29,6 +35,20 @@ npx serve .
 ```
 
 浏览器打开 http://localhost:8899 。
+
+## 资源优化
+
+```bash
+./scripts/optimize-video.sh      # 7 支影片 720p -> 480p（29.1 MiB -> 10.3 MiB）
+./scripts/optimize-images.sh     # 生成 AVIF + 压缩视频封面（图片总量 -79%）
+python3 scripts/migrate-p0.py    # 清理 HTML、补 <picture>/meta（幂等，可重跑）
+```
+
+站点内所有视频的**展示宽度都不超过 480px**（网格卡 384px、PDP 影片 460px、
+MCRF 视频约 461px），因此 480×854 是足够的分辨率，不要盲目上传 720p 以上源片。
+
+`scripts/migrate-p0.py` 顶部的 `SITE` 常量用于生成 canonical / og:url / sitemap，
+**上线前请改成正式域名并重跑一次。**
 
 ## 视觉规范
 
@@ -54,11 +74,33 @@ npx serve .
 
 ### 腾讯云 COS + CDN（推荐用于中国大陆正式访问）
 
-1. 创建 **COS 存储桶**，权限设为「公有读私有写」，开启「静态网站」功能（默认索引 `index.html`）
-2. 将本仓库所有文件上传至存储桶根目录（可用 `coscmd` / 控制台拖拽 / CI 同步）
+1. 创建 **COS 存储桶**，权限设为「公有读私有写」，开启「静态网站」功能
+   （索引文档 `index.html`，错误文档 `404.html`），强制 HTTPS
+2. 将本仓库所有文件（**除 `scripts/`、`README.md`、`OPTIMIZATION-PLAN.md`**）上传至桶根目录
 3. 创建 **CDN 加速域名**，源站选择该 COS 桶，回源协议 HTTPS
 4. 域名需完成 **ICP 备案**后方可启用 CDN 加速
-5. CDN 配置「缓存过期时间」：`*.html` 设为 0（不缓存），`assets/*` 设为 7 天
+5. **补齐 MIME 映射**（COS 默认按扩展名推断，漏配会导致资源不渲染）：
+
+   | 扩展名 | Content-Type |
+   | --- | --- |
+   | `.avif` | `image/avif` |
+   | `.webp` | `image/webp` |
+   | `.woff2` | `font/woff2` |
+
+6. **设置缓存头**（对象元数据 `Cache-Control`）：
+
+   | 路径 | 值 |
+   | --- | --- |
+   | `*.html` | `public, max-age=0, s-maxage=300, stale-while-revalidate=86400` |
+   | `assets/*` | `public, max-age=2592000, stale-while-revalidate=604800` |
+
+7. **CDN 必开**：智能压缩（Brotli）、Range 回源、分片回源、HTTP/3、URL 防盗链
+8. 每次发布后刷新 `/*.html`（文件名未做哈希，HTML 与 CSS/JS 必须刷新才能生效）
+
+> COS 静态网站**不支持 URL rewrite**，只能靠索引文档 + 错误文档。
+> 因此全站保持「多页真实文件」结构，未使用前端路由——这也是它能直接跑在
+> 任意对象存储上的原因。若将来引入 SPA 路由，需改由 CDN 重写承接。
+
 
 ### 双线加速（国内 + 海外都快的方案）
 

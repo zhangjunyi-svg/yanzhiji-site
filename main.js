@@ -30,6 +30,20 @@ const io = new IntersectionObserver(
 );
 document.querySelectorAll(".reveal").forEach((el) => io.observe(el));
 
+// 兜底：直接带锚点打开（如 /#products）或浏览器恢复滚动位置时，
+// IntersectionObserver 的首次回调可能早于这次跳转，加载完成后按几何位置补一次。
+const revealInView = () => {
+  document.querySelectorAll(".reveal:not(.visible)").forEach((el) => {
+    const r = el.getBoundingClientRect();
+    if (r.top < window.innerHeight * 0.94 && r.bottom > 0) {
+      el.classList.add("visible");
+      io.unobserve(el);
+    }
+  });
+};
+window.addEventListener("load", revealInView);
+window.addEventListener("hashchange", () => setTimeout(revealInView, 80));
+
 // 数字滚动
 const fmt = (n) => n.toLocaleString("en-US");
 const counterIO = new IntersectionObserver(
@@ -68,10 +82,40 @@ const playIO = new IntersectionObserver(
   },
   { threshold: 0.4 }
 );
-document.querySelectorAll("video").forEach((v) => {
+document.querySelectorAll("video:not(#pdVideo)").forEach((v) => {
   v.muted = true;
   playIO.observe(v);
 });
+
+// ---------- 产品详情页影片（点击有声播放 / 暂停恢复按钮） ----------
+const pdVideo = document.getElementById("pdVideo");
+const pdFilmPlay = document.getElementById("pdFilmPlay");
+if (pdVideo && pdFilmPlay) {
+  const syncBtn = () => {
+    const playing = !pdVideo.paused && !pdVideo.ended;
+    pdFilmPlay.classList.toggle("playing", playing);
+    const label = pdFilmPlay.querySelector("span");
+    if (label) label.textContent = playing ? "正在播放" : "播放影片（含声音）";
+  };
+  pdFilmPlay.addEventListener("click", () => {
+    pdVideo.muted = false;
+    pdVideo.play().catch(() => {});
+  });
+  pdVideo.addEventListener("click", () => {
+    if (!pdVideo.paused) pdVideo.pause();
+  });
+  pdVideo.addEventListener("play", syncBtn);
+  pdVideo.addEventListener("pause", syncBtn);
+  pdVideo.addEventListener("ended", syncBtn);
+  new IntersectionObserver(
+    (entries) => {
+      entries.forEach((e) => {
+        if (!e.isIntersecting && !pdVideo.paused) pdVideo.pause();
+      });
+    },
+    { threshold: 0.15 }
+  ).observe(pdVideo);
+}
 
 // ---------- 声音开关 ----------
 document.querySelectorAll(".video-sound").forEach((btn) => {

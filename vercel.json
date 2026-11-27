@@ -7,7 +7,25 @@
     {
       "source": "/assets/(.*)",
       "headers": [
+        { "key": "Cache-Control", "value": "public, max-age=2592000, stale-while-revalidate=604800" }
+      ]
+    },
+    {
+      "source": "/(.*)\\.(css|js)",
+      "headers": [
         { "key": "Cache-Control", "value": "public, max-age=86400, stale-while-revalidate=604800" }
+      ]
+    },
+    {
+      "source": "/",
+      "headers": [
+        { "key": "Cache-Control", "value": "public, max-age=0, s-maxage=300, stale-while-revalidate=86400" }
+      ]
+    },
+    {
+      "source": "/(.*)\\.html",
+      "headers": [
+        { "key": "Cache-Control", "value": "public, max-age=0, s-maxage=300, stale-while-revalidate=86400" }
       ]
     },
     {
@@ -20,6 +38,7 @@
     }
   ],
   "redirects": [
-    { "source": "/index", "destination": "/", "permanent": true }
+    { "source": "/index", "destination": "/", "permanent": true },
+    { "source": "/index.html", "destination": "/", "permanent": true }
   ]
 }

@@ -428,6 +428,10 @@ b { font-weight: 600; }
 .footer-legal { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; }
 .footer-icp { transition: color .3s; }
 .footer-icp:hover { color: rgba(242, 238, 250, 0.85); }
+.footer-psb { display: inline-flex; align-items: center; gap: 5px; transition: color .3s; }
+.footer-psb img { width: 14px; height: 14px; }
+.footer-psb:hover { color: rgba(242, 238, 250, 0.85); }
+.footer-legal [hidden] { display: none !important; }
 
 /* ============ 入场动画 ============ */
 /* 保持正文默认可见，仅以位移做入场动效，避免渲染期爬虫快照出现隐藏内容 */

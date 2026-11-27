@@ -1,4 +1,11 @@
+User-agent: Baiduspider
+Allow: /
+Disallow: /scripts/
+Disallow: /*.md$
+
 User-agent: *
 Allow: /
+Disallow: /scripts/
+Disallow: /*.md$
 
 Sitemap: https://www.yencigi.com/sitemap.xml

@@ -111,6 +111,26 @@ DNS 分线路解析（云解析支持「境内 / 境外」分流）：
 
 同一域名，国内用户走 CDN、海外用户走 Vercel，两端都是本地就近节点。
 
+## 百度收录与备案信息（待填清单）
+
+站点已内置百度 SEO 所需的标签与文件：每页独立的标题 / 描述 / 关键词、`canonical`、禁止百度转码（`no-transform` / `no-siteapp`）、PC 与移动自适应声明（`applicable-device`）、JSON-LD 结构化数据、`sitemap.xml`、`robots.txt`。以下几项需要拿到平台给出的编号后填入：
+
+| 项目 | 去哪里取得 | 填写位置 |
+| --- | --- | --- |
+| ICP 备案号 | 已填写 `浙ICP备2026096837号-1`，请到 [beian.miit.gov.cn](https://beian.miit.gov.cn/) 核对 | 各页页脚 `.footer-icp` |
+| 公安联网备案号 | 网站开通后 30 日内到 [beian.mps.gov.cn](https://beian.mps.gov.cn/) 申请 | 各页页脚 `.footer-psb`：替换两处 `33010XXXXXXXXX`，删除该行和前面分隔符的 `hidden`；如需官方图标，下载后存为 `assets/beian-psb.png` 并在号码前加 `<img>`（注释里有现成代码） |
+| 百度站点验证码 | [ziyuan.baidu.com](https://ziyuan.baidu.com/) → 用户中心 → 站点管理 → 添加网站 → HTML 标签验证 | `index.html` 头部 `baidu-site-verification`，替换后取消注释 |
+| 百度统计 ID | [tongji.baidu.com](https://tongji.baidu.com/) → 新增网站 → 获取代码 | 各页 `</head>` 前的注释块：替换 `YOUR_HM_ID` 后取消注释 |
+| 百度推送 token | 百度搜索资源平台 → 普通收录 → API 提交 | 运行时传入：`BAIDU_TOKEN=xxx ./scripts/baidu-push.sh` |
+
+上线后的收录流程：
+
+1. 部署到服务器，确认 `https://www.yencigi.com/robots.txt` 与 `/sitemap.xml` 可访问
+2. 百度搜索资源平台添加 `https://www.yencigi.com`（选 HTTPS 协议），完成 HTML 标签验证
+3. 普通收录 → sitemap 提交 `https://www.yencigi.com/sitemap.xml`
+4. 运行 `scripts/baidu-push.sh` 主动推送全部页面；以后新增或修改页面后，先更新 `sitemap.xml` 的 `lastmod` 再推送一次
+5. 新站一般 1～4 周开始出现收录，可在平台「索引量」中查看进度
+
 ## 许可
 
 品牌视觉素材版权归杭州丝妍科技有限公司所有，仅供本项目使用。
